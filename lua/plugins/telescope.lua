@@ -19,6 +19,9 @@ return {
             ["<C-k>"] = actions.move_selection_previous,
             ["<C-j>"] = actions.move_selection_next,
             ["<C-q>"] = actions.send_selected_to_qflist + actions.open_qflist,
+            ["<C-v>"] = function()
+              vim.api.nvim_put({ vim.fn.getreg('+') }, 'c', true, true)
+            end,
           },
         },
       },
@@ -46,6 +49,12 @@ return {
     keymap.set("n", "<leader>ff", "<cmd>Telescope find_files<cr>", { desc = "Find files" })
     keymap.set("n", "<leader>fr", "<cmd>Telescope oldfiles<cr>", { desc = "Find recent files" })
     keymap.set("n", "<leader>fs", "<cmd>Telescope live_grep<cr>", { desc = "Find string" })
+    keymap.set("n", "<leader>fsp", function()
+      local clipboard_text = vim.fn.getreg('+')
+      require("telescope.builtin").live_grep({
+        default_text = clipboard_text,
+      })
+    end, { desc = "Find string (paste from clipboard)" })
     keymap.set("n", "<leader>fc", "<cmd>Telescope grep_string<cr>", { desc = "Find string under cursor" })
     keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<cr>", { desc = "Find buffers" })
     keymap.set("n", "<leader>fh", "<cmd>Telescope help_tags<cr>", { desc = "Find help" })
