@@ -13,15 +13,25 @@ return {
         local opts = { buffer = ev.buf, silent = true }
         local keymap = vim.keymap
 
-        keymap.set("n", "gR", "<cmd>Telescope lsp_references<CR>", opts)
-        keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
-        keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<CR>", opts)
-        keymap.set("n", "gi", "<cmd>Telescope lsp_implementations<CR>", opts)
-        keymap.set("n", "gt", "<cmd>Telescope lsp_type_definitions<CR>", opts)
-        keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
-        keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
-        keymap.set("n", "K", vim.lsp.buf.hover, opts)
-        keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts)
+        -- LSP Navigation - atalhos padrão
+        keymap.set("n", "gR", "<cmd>Telescope lsp_references<CR>", { buffer = ev.buf, silent = true, desc = "Show references" })
+        keymap.set("n", "gD", vim.lsp.buf.declaration, { buffer = ev.buf, silent = true, desc = "Go to declaration" })
+        keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<CR>", { buffer = ev.buf, silent = true, desc = "Go to definition" })
+        keymap.set("n", "gi", "<cmd>Telescope lsp_implementations<CR>", { buffer = ev.buf, silent = true, desc = "Go to implementation" })
+        keymap.set("n", "gt", "<cmd>Telescope lsp_type_definitions<CR>", { buffer = ev.buf, silent = true, desc = "Go to type definition" })
+
+        -- Atalhos alternativos mais fáceis de lembrar para componentes
+        keymap.set("n", "<leader>cd", "<cmd>Telescope lsp_definitions<CR>", { buffer = ev.buf, silent = true, desc = "Go to Component Definition" })
+        keymap.set("n", "<leader>cr", "<cmd>Telescope lsp_references<CR>", { buffer = ev.buf, silent = true, desc = "Find Component References (where it's used)" })
+        keymap.set("n", "<leader>ci", "<cmd>Telescope lsp_implementations<CR>", { buffer = ev.buf, silent = true, desc = "Go to Component Implementation" })
+        keymap.set("n", "<leader>cb", "<C-o>", { buffer = ev.buf, silent = true, desc = "Go Back to previous location" })
+        keymap.set("n", "<leader>cf", "<C-i>", { buffer = ev.buf, silent = true, desc = "Go Forward in jump list" })
+
+        -- LSP Actions
+        keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { buffer = ev.buf, silent = true, desc = "Code action" })
+        keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { buffer = ev.buf, silent = true, desc = "Rename" })
+        keymap.set("n", "K", vim.lsp.buf.hover, { buffer = ev.buf, silent = true, desc = "Hover documentation" })
+        keymap.set("n", "<leader>rs", ":LspRestart<CR>", { buffer = ev.buf, silent = true, desc = "Restart LSP" })
       end,
     })
 
