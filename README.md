@@ -9,7 +9,6 @@
 
 - **Fast startup time** with lazy loading
 - **Modern LSP** support with auto-completion
-- **AI assistance** with GitHub Copilot integration
 - **Git integration** with visual diff and blame
 - **Smart code formatting** and linting
 - **Fuzzy finding** with Telescope
@@ -84,12 +83,6 @@ The configuration will automatically:
 - **Auto-format**: Format on save enabled
 - **Manual format**: `<leader>mp` to format current file/selection
 
-### 🤖 AI Integration
-- **GitHub Copilot**: AI-powered code suggestions
-- **Auto-trigger**: Suggestions appear as you type
-- **Accept**: Tab to accept suggestions
-- **Panel**: `<leader>cp` to open Copilot panel
-
 ### 🔍 Navigation & Search
 - **File finder**: `<leader>ff` - Find files in project
 - **Live grep**: `<leader>fs` - Search text across files
@@ -143,11 +136,9 @@ The configuration will automatically:
 | `<leader>ca` | Code actions | Show available code actions |
 | `<leader>rn` | Rename | Rename symbol |
 
-### AI & Productivity
+### Productivity
 | Key | Action | Description |
 |-----|--------|-------------|
-| `<Tab>` | Accept Copilot | Accept AI suggestion |
-| `<leader>cp` | Copilot panel | Open Copilot suggestions panel |
 | `<leader>mp` | Format | Format current file/selection |
 
 ## 🔧 Configuration Structure
@@ -165,7 +156,6 @@ The configuration will automatically:
 │       ├── lsp/            # LSP related plugins
 │       ├── blink-cmp.lua   # Completion engine
 │       ├── colorscheme.lua # Theme configuration
-│       ├── copilot.lua     # AI assistance
 │       ├── formatting.lua  # Code formatting
 │       ├── gitsigns.lua    # Git integration
 │       ├── linting.lua     # Code linting
