@@ -19,20 +19,19 @@ return {
     
     -- Configuração dos LSPs
     require("mason-lspconfig").setup({
-      ensure_installed = { 
-        "ts_ls", 
-        "html", 
-        "cssls", 
-        "tailwindcss", 
-        "lua_ls", 
+      ensure_installed = {
+        "ts_ls",
+        "html",
+        "cssls",
+        "tailwindcss",
+        "lua_ls",
         "emmet_ls",
         "rust_analyzer",
         "pyright",
         "clangd",
         "elixirls",
         "ruby_lsp",
-        "astro",
-        "volar"
+        "astro"
       },
       automatic_installation = true,
     })
