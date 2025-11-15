@@ -5,8 +5,6 @@ return {
     { "folke/neodev.nvim", opts = {} },
   },
   config = function()
-    local lspconfig = require("lspconfig")
-
     vim.api.nvim_create_autocmd("LspAttach", {
       group = vim.api.nvim_create_augroup("UserLspConfig", {}),
       callback = function(ev)
@@ -62,7 +60,8 @@ return {
 
     for name, config in pairs(servers) do
       config.capabilities = capabilities
-      lspconfig[name].setup(config)
+      vim.lsp.config[name] = config
+      vim.lsp.enable(name)
     end
   end,
 }
