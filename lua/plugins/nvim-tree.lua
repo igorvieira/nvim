@@ -19,6 +19,10 @@ return {
 
     require("nvim-tree").setup({
       view = { width = 35, side = "left" },
+      update_focused_file = {
+        enable = true,
+        update_root = false,
+      },
       renderer = {
         icons = {
           show = { file = true, folder = true, folder_arrow = true, git = true },

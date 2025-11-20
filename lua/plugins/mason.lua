@@ -14,6 +14,10 @@ return {
           package_pending = "➜",
           package_uninstalled = "✗"
         }
+      },
+      max_concurrent_installers = 4,
+      github = {
+        download_url_template = "https://github.com/%s/releases/download/%s/%s",
       }
     })
     

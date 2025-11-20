@@ -5,7 +5,9 @@ return {
   version = "v0.*",
 
   opts = {
-    keymap = { preset = "default" },
+    keymap = {
+      preset = "enter", -- Enter aceita completion, Tab/S-Tab navega
+    },
 
     sources = {
       default = { "lsp", "path", "snippets", "buffer" },
