@@ -6,7 +6,7 @@ return {
 
   opts = {
     keymap = {
-      preset = "enter", -- Enter aceita completion, Tab/S-Tab navega
+      preset = "enter", -- Enter accepts completion, Tab/S-Tab navigates
     },
 
     sources = {

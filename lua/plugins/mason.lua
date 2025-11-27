@@ -5,7 +5,7 @@ return {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
   },
   config = function()
-    -- Configuração básica do Mason
+    -- Basic Mason configuration
     require("mason").setup({
       ui = {
         border = "rounded",
@@ -20,8 +20,8 @@ return {
         download_url_template = "https://github.com/%s/releases/download/%s/%s",
       }
     })
-    
-    -- Configuração dos LSPs
+
+    -- LSPs configuration
     require("mason-lspconfig").setup({
       ensure_installed = {
         "ts_ls",
@@ -39,8 +39,8 @@ return {
       },
       automatic_installation = true,
     })
-    
-    -- Lista de ferramentas para instalar manualmente
+
+    -- List of tools to install manually
     local tools_to_install = {
       "prettier",
       "stylua", 
@@ -52,32 +52,32 @@ return {
       "rubocop",
       "pylint",
     }
-    
-    -- Função para instalar ferramentas individualmente
+
+    -- Function to install tools individually
     local function install_tools()
       local registry = require("mason-registry")
       
       for _, tool in ipairs(tools_to_install) do
         local p = registry.get_package(tool)
         if not p:is_installed() then
-          vim.notify("Instalando " .. tool .. "...", vim.log.levels.INFO)
+          vim.notify("Installing " .. tool .. "...", vim.log.levels.INFO)
           p:install()
         else
-          vim.notify(tool .. " já está instalado", vim.log.levels.INFO)
+          vim.notify(tool .. " is already installed", vim.log.levels.INFO)
         end
       end
     end
-    
-    -- Comando personalizado para instalar todas as ferramentas
+
+    -- Custom command to install all tools
     vim.api.nvim_create_user_command("MasonInstallTools", function()
       install_tools()
-    end, { desc = "Instalar todas as ferramentas necessárias" })
-    
-    -- Auto-instalar ferramentas na inicialização (opcional)
+    end, { desc = "Install all necessary tools" })
+
+    -- Auto-install tools on startup (optional)
     vim.api.nvim_create_autocmd("User", {
       pattern = "MasonRegistryReady",
       callback = function()
-        -- Descomente a linha abaixo se quiser instalação automática
+        -- Uncomment the line below if you want automatic installation
         -- install_tools()
       end,
     })

@@ -2,21 +2,21 @@ return {
   "nvim-lualine/lualine.nvim",
   dependencies = { "nvim-tree/nvim-web-devicons" },
   config = function()
-    -- Git blame component com cor mais clara
+    -- Git blame component with lighter color
     local git_blame = {
       function()
         local blame_text = vim.b.gitsigns_blame_line
         if not blame_text or blame_text == "" then
           return ""
         end
-        
-        -- Parse blame info para formato limpo
+
+        -- Parse blame info to clean format
         local author = blame_text:match("^([^,]+)")
         local date = blame_text:match("(%d%d%d%d%-%d%d%-%d%d)")
         local summary = blame_text:match("- (.+)$")
-        
+
         if author and date and summary then
-          -- Calcular tempo relativo
+          -- Calculate relative time
           local current_time = os.time()
           local blame_date = string.gsub(date, "%-", "")
           local year = tonumber(string.sub(blame_date, 1, 4))
@@ -36,8 +36,8 @@ return {
           else
             time_str = "now"
           end
-          
-          -- Truncar summary se muito longo
+
+          -- Truncate summary if too long
           if #summary > 25 then
             summary = summary:sub(1, 22) .. "..."
           end
@@ -48,7 +48,7 @@ return {
         end
       end,
       icon = "🍋",
-      color = { fg = "#F8F8F2", gui = "bold" }, -- Branco claro do Dracula + bold
+      color = { fg = "#F8F8F2", gui = "bold" }, -- Dracula light white + bold
       cond = function()
         return vim.b.gitsigns_blame_line ~= nil and vim.b.gitsigns_blame_line ~= ""
       end
@@ -64,9 +64,9 @@ return {
       sections = {
         lualine_a = { "mode" },
         lualine_b = { "branch", "diff", "diagnostics" },
-        lualine_c = { 
+        lualine_c = {
           "filename",
-          git_blame -- Git blame com cor clara
+          git_blame -- Git blame with light color
         },
         lualine_x = { "encoding", "fileformat", "filetype" },
         lualine_y = { "progress" },

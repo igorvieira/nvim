@@ -11,14 +11,14 @@ return {
         local opts = { buffer = ev.buf, silent = true }
         local keymap = vim.keymap
 
-        -- LSP Navigation - atalhos padrão
+        -- LSP Navigation - default shortcuts
         keymap.set("n", "gR", "<cmd>Telescope lsp_references<CR>", { buffer = ev.buf, silent = true, desc = "Show references" })
         keymap.set("n", "gD", vim.lsp.buf.declaration, { buffer = ev.buf, silent = true, desc = "Go to declaration" })
         keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<CR>", { buffer = ev.buf, silent = true, desc = "Go to definition" })
         keymap.set("n", "gi", "<cmd>Telescope lsp_implementations<CR>", { buffer = ev.buf, silent = true, desc = "Go to implementation" })
         keymap.set("n", "gt", "<cmd>Telescope lsp_type_definitions<CR>", { buffer = ev.buf, silent = true, desc = "Go to type definition" })
 
-        -- Atalhos alternativos mais fáceis de lembrar para componentes
+        -- Alternative shortcuts easier to remember for components
         keymap.set("n", "<leader>cd", "<cmd>Telescope lsp_definitions<CR>", { buffer = ev.buf, silent = true, desc = "Go to Component Definition" })
         keymap.set("n", "<leader>cr", "<cmd>Telescope lsp_references<CR>", { buffer = ev.buf, silent = true, desc = "Find Component References (where it's used)" })
         keymap.set("n", "<leader>ci", "<cmd>Telescope lsp_implementations<CR>", { buffer = ev.buf, silent = true, desc = "Go to Component Implementation" })
