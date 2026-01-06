@@ -30,6 +30,41 @@ return {
         keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { buffer = ev.buf, silent = true, desc = "Rename" })
         keymap.set("n", "K", vim.lsp.buf.hover, { buffer = ev.buf, silent = true, desc = "Hover documentation" })
         keymap.set("n", "<leader>rs", ":LspRestart<CR>", { buffer = ev.buf, silent = true, desc = "Restart LSP" })
+
+        -- Organize imports
+        keymap.set("n", "<leader>oi", function()
+          vim.lsp.buf.code_action({
+            context = {
+              only = { "source.organizeImports" },
+              diagnostics = {},
+            },
+            apply = true,
+          })
+        end, { buffer = ev.buf, silent = true, desc = "Organize imports" })
+      end,
+    })
+
+    -- Auto-organize imports on save
+    vim.api.nvim_create_autocmd("BufWritePre", {
+      group = vim.api.nvim_create_augroup("OrganizeImportsOnSave", { clear = true }),
+      pattern = { "*.ts", "*.tsx", "*.js", "*.jsx", "*.py", "*.go" },
+      callback = function()
+        local params = {
+          command = "_typescript.organizeImports",
+          arguments = { vim.api.nvim_buf_get_name(0) },
+        }
+
+        -- Try typescript organize imports command
+        vim.lsp.buf.execute_command(params)
+
+        -- Fallback to generic organize imports code action
+        vim.lsp.buf.code_action({
+          context = {
+            only = { "source.organizeImports" },
+            diagnostics = {},
+          },
+          apply = true,
+        })
       end,
     })
 
@@ -42,7 +77,34 @@ return {
     local servers = {
       html = {},
       cssls = {},
-      ts_ls = {},
+      ts_ls = {
+        settings = {
+          typescript = {
+            inlayHints = {
+              includeInlayParameterNameHints = "all",
+              includeInlayFunctionParameterTypeHints = true,
+            },
+          },
+          javascript = {
+            inlayHints = {
+              includeInlayParameterNameHints = "all",
+              includeInlayFunctionParameterTypeHints = true,
+            },
+          },
+        },
+        commands = {
+          OrganizeImports = {
+            function()
+              local params = {
+                command = "_typescript.organizeImports",
+                arguments = { vim.api.nvim_buf_get_name(0) },
+              }
+              vim.lsp.buf.execute_command(params)
+            end,
+            description = "Organize Imports",
+          },
+        },
+      },
       tailwindcss = {},
       emmet_ls = {
         filetypes = { "html", "css", "scss", "javascript", "typescript", "javascriptreact", "typescriptreact" },

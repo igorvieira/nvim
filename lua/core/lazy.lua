@@ -7,10 +7,11 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   spec = { { import = "plugins" } },
-  defaults = { lazy = false, version = false },
+  defaults = { lazy = false },
   install = { colorscheme = { "dracula" } },
   checker = { enabled = false, notify = false },
   change_detection = { enabled = false, notify = false },
+  lockfile = vim.fn.stdpath("config") .. "/lazy-lock.json",
   performance = {
     rtp = {
       disabled_plugins = {
