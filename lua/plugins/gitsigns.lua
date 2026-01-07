@@ -64,18 +64,22 @@ return {
       end,
     })
 
-    -- Force lualine refresh when blame changes
+    -- Optimize lualine refresh - only update on blame changes, not every cursor move
     local augroup = vim.api.nvim_create_augroup("GitBlameStatusline", { clear = true })
+    local last_blame = ""
 
-    vim.api.nvim_create_autocmd({ "CursorMoved", "CursorHold" }, {
+    vim.api.nvim_create_autocmd("CursorHold", {
       group = augroup,
       callback = function()
-        -- Trigger lualine refresh
-        vim.schedule(function()
-          if package.loaded.lualine then
-            require('lualine').refresh()
-          end
-        end)
+        local current_blame = vim.b.gitsigns_blame_line or ""
+        if current_blame ~= last_blame then
+          last_blame = current_blame
+          vim.schedule(function()
+            if package.loaded.lualine then
+              require('lualine').refresh()
+            end
+          end)
+        end
       end,
     })
 
@@ -84,6 +88,7 @@ return {
       group = augroup,
       callback = function()
         vim.b.gitsigns_blame_line = ""
+        last_blame = ""
         if package.loaded.lualine then
           require('lualine').refresh()
         end

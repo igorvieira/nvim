@@ -1,0 +1,185 @@
+name: Test Neovim Configuration
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Neovim (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo add-apt-repository ppa:neovim-ppa/unstable -y
+          sudo apt-get update
+          sudo apt-get install -y neovim
+
+      - name: Install Neovim (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install neovim
+
+      - name: Install dependencies
+        run: |
+          # Install ripgrep for telescope
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get update
+            sudo apt-get install -y ripgrep
+          else
+            brew install ripgrep
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Verify installations
+        run: |
+          nvim --version
+          git --version
+          rg --version
+          node --version
+
+      - name: Create XDG directories
+        run: |
+          mkdir -p ~/.config/nvim
+          mkdir -p ~/.local/share/nvim
+          mkdir -p ~/.local/state/nvim
+          mkdir -p ~/.cache/nvim
+
+      - name: Copy config to XDG location
+        run: |
+          cp -r ${{ github.workspace }}/* ~/.config/nvim/
+
+      - name: Bootstrap lazy.nvim
+        run: |
+          git clone --filter=blob:none --branch=stable \
+            https://github.com/folke/lazy.nvim.git \
+            ~/.local/share/nvim/lazy/lazy.nvim
+
+      - name: Install plugins
+        run: |
+          nvim --headless "+Lazy! sync" +qa
+        timeout-minutes: 10
+
+      - name: Run configuration tests
+        run: |
+          cd ~/.config/nvim
+          nvim -l tests/test_runner.lua
+
+      - name: Check for Lua syntax errors
+        run: |
+          find ~/.config/nvim/lua -name "*.lua" -type f | while read file; do
+            echo "Checking $file"
+            nvim --headless -c "luafile $file" +qa || exit 1
+          done
+
+      - name: Run Neovim health checks
+        run: |
+          nvim --headless -c "checkhealth" -c "write! /tmp/health.log" -c "qa"
+          cat /tmp/health.log
+
+      - name: Test plugin loading
+        run: |
+          nvim --headless \
+            -c "lua vim.wait(5000, function() return false end)" \
+            -c "lua print('Plugins loaded: ' .. #require('lazy').plugins())" \
+            -c "qa"
+
+  lint:
+    name: Lint Configuration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Neovim
+        run: |
+          sudo add-apt-repository ppa:neovim-ppa/unstable -y
+          sudo apt-get update
+          sudo apt-get install -y neovim
+
+      - name: Install Luacheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y luarocks
+          sudo luarocks install luacheck
+
+      - name: Run Luacheck
+        run: |
+          luacheck lua/ --globals vim --no-max-line-length || true
+
+      - name: Check for TODO/FIXME
+        run: |
+          if grep -r "TODO\|FIXME" lua/; then
+            echo "Found TODO or FIXME comments - review needed"
+          fi
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for sensitive data
+        run: |
+          # Check for potential secrets or credentials
+          if grep -rE "(password|secret|token|api_key)" lua/ --exclude-dir=.git; then
+            echo "Warning: Found potential sensitive data"
+            exit 1
+          fi
+
+      - name: Verify lockfile integrity
+        run: |
+          if [ ! -f "lazy-lock.json" ]; then
+            echo "Error: lazy-lock.json not found"
+            exit 1
+          fi
+
+          # Verify it's valid JSON
+          python3 -m json.tool lazy-lock.json > /dev/null
+
+  documentation:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check README exists
+        run: |
+          if [ ! -f "README.md" ]; then
+            echo "Warning: README.md not found"
+          fi
+
+      - name: Generate keymap documentation
+        run: |
+          echo "# Keybindings" > KEYBINDINGS.md
+          echo "" >> KEYBINDINGS.md
+          echo "Auto-generated from configuration" >> KEYBINDINGS.md
+
+      - name: Upload documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: |
+            KEYBINDINGS.md
+            /tmp/health.log

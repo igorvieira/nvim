@@ -54,7 +54,7 @@ return {
     vim.keymap.set("i", "<Tab>", function()
       -- Check if blink.cmp menu is visible (priority: let blink handle it)
       local has_blink, blink = pcall(require, "blink.cmp")
-      if has_blink and blink.is_visible() then
+      if has_blink and blink and blink.is_visible and blink.is_visible() then
         return "<Tab>" -- Let blink.cmp handle Tab navigation
       end
 

@@ -2,6 +2,8 @@ return {
   "neovim/nvim-lspconfig",
   event = { "BufReadPre", "BufNewFile" },
   dependencies = {
+    "williamboman/mason.nvim",
+    "williamboman/mason-lspconfig.nvim",
     { "folke/neodev.nvim", opts = {} },
   },
   config = function()
@@ -38,7 +40,6 @@ return {
               only = { "source.organizeImports" },
               diagnostics = {},
             },
-            apply = true,
           })
         end, { buffer = ev.buf, silent = true, desc = "Organize imports" })
       end,
@@ -48,22 +49,29 @@ return {
     vim.api.nvim_create_autocmd("BufWritePre", {
       group = vim.api.nvim_create_augroup("OrganizeImportsOnSave", { clear = true }),
       pattern = { "*.ts", "*.tsx", "*.js", "*.jsx", "*.py", "*.go" },
-      callback = function()
-        local params = {
-          command = "_typescript.organizeImports",
-          arguments = { vim.api.nvim_buf_get_name(0) },
-        }
+      callback = function(args)
+        -- Check if LSP is attached
+        local clients = vim.lsp.get_clients({ bufnr = args.buf })
+        if #clients == 0 then return end
 
-        -- Try typescript organize imports command
-        vim.lsp.buf.execute_command(params)
+        -- Try TypeScript-specific organize imports
+        for _, client in ipairs(clients) do
+          if client.name == "ts_ls" or client.name == "tsserver" then
+            local params = {
+              command = "_typescript.organizeImports",
+              arguments = { vim.api.nvim_buf_get_name(0) },
+            }
+            pcall(vim.lsp.buf.execute_command, params)
+            return
+          end
+        end
 
         -- Fallback to generic organize imports code action
-        vim.lsp.buf.code_action({
+        pcall(vim.lsp.buf.code_action, {
           context = {
             only = { "source.organizeImports" },
             diagnostics = {},
           },
-          apply = true,
         })
       end,
     })
@@ -120,10 +128,10 @@ return {
       }
     }
 
+    local lspconfig = require("lspconfig")
     for name, config in pairs(servers) do
       config.capabilities = capabilities
-      vim.lsp.config[name] = config
-      vim.lsp.enable(name)
+      lspconfig[name].setup(config)
     end
   end,
 }

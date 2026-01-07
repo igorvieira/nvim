@@ -36,17 +36,13 @@ return {
       local autopairs = require("nvim-autopairs")
       autopairs.setup({
         check_ts = true,
-        ts_config = { 
-          lua = { "string", "source" }, 
+        ts_config = {
+          lua = { "string", "source" },
           javascript = { "string", "template_string" },
           typescript = { "string", "template_string" },
         },
       })
-      
-      local cmp = require("blink.cmp")
-      if cmp and cmp.on_confirm_done then
-        cmp.on_confirm_done(autopairs.on_confirm_done())
-      end
+      -- blink.cmp has automatic autopairs integration, no manual setup needed
     end,
   },
 }
