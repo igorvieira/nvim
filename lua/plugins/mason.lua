@@ -34,7 +34,6 @@ return {
         "pyright",
         "clangd",
         "elixirls",
-        "ruby_lsp",
         "astro"
       },
       automatic_installation = true,
@@ -43,13 +42,12 @@ return {
     -- List of tools to install manually
     local tools_to_install = {
       "prettier",
-      "stylua", 
+      "stylua",
       "eslint_d",
       "black",
       "isort",
       "rustfmt",
       "clang-format",
-      "rubocop",
       "pylint",
     }
 
