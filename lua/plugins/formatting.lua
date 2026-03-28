@@ -16,6 +16,8 @@ return {
         json = { "prettier" },
         yaml = { "prettier" },
         markdown = { "prettier" },
+        rust = { "rustfmt" },
+        toml = { "taplo" },
       },
       format_on_save = function(bufnr)
         local filetype = vim.bo[bufnr].filetype

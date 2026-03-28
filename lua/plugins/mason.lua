@@ -46,7 +46,7 @@ return {
       "eslint_d",
       "black",
       "isort",
-      "rustfmt",
+
       "clang-format",
       "pylint",
     }

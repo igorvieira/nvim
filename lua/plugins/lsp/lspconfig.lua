@@ -125,6 +125,25 @@ return {
             telemetry = { enable = false }
           }
         },
+      },
+      rust_analyzer = {
+        settings = {
+          ["rust-analyzer"] = {
+            completion = {
+              autoimport = { enable = true },
+              postfix = { enable = true },
+              fullFunctionSignatures = { enable = true },
+            },
+            check = {
+              command = "clippy",
+            },
+            inlayHints = {
+              chainingHints = { enable = true },
+              parameterHints = { enable = true },
+              typeHints = { enable = true },
+            },
+          },
+        },
       }
     }
 
