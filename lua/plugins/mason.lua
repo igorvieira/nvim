@@ -36,7 +36,8 @@ return {
         "elixirls",
         "astro"
       },
-      automatic_installation = true,
+      -- Servers are configured and enabled in lsp/lspconfig.lua
+      automatic_enable = false,
     })
 
     -- List of tools to install manually

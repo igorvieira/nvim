@@ -4,7 +4,6 @@ return {
   dependencies = {
     "williamboman/mason.nvim",
     "williamboman/mason-lspconfig.nvim",
-    { "folke/neodev.nvim", opts = {} },
   },
   config = function()
     vim.api.nvim_create_autocmd("LspAttach", {
@@ -45,43 +44,28 @@ return {
       end,
     })
 
-    -- Auto-organize imports on save
+    -- Auto-organize imports on save (ts_ls only; blocks briefly so it runs before formatting)
     vim.api.nvim_create_autocmd("BufWritePre", {
       group = vim.api.nvim_create_augroup("OrganizeImportsOnSave", { clear = true }),
-      pattern = { "*.ts", "*.tsx", "*.js", "*.jsx", "*.py", "*.go" },
+      pattern = { "*.ts", "*.tsx", "*.js", "*.jsx" },
       callback = function(args)
-        -- Check if LSP is attached
-        local clients = vim.lsp.get_clients({ bufnr = args.buf })
-        if #clients == 0 then return end
-
-        -- Try TypeScript-specific organize imports
-        for _, client in ipairs(clients) do
-          if client.name == "ts_ls" or client.name == "tsserver" then
-            local params = {
-              command = "_typescript.organizeImports",
-              arguments = { vim.api.nvim_buf_get_name(0) },
-            }
-            pcall(vim.lsp.buf.execute_command, params)
-            return
-          end
-        end
-
-        -- Fallback to generic organize imports code action
-        pcall(vim.lsp.buf.code_action, {
-          context = {
-            only = { "source.organizeImports" },
-            diagnostics = {},
-          },
-        })
+        local client = vim.lsp.get_clients({ bufnr = args.buf, name = "ts_ls" })[1]
+        if not client then return end
+        client:request_sync("workspace/executeCommand", {
+          command = "_typescript.organizeImports",
+          arguments = { vim.api.nvim_buf_get_name(args.buf) },
+        }, 1000, args.buf)
       end,
     })
 
     local capabilities = vim.lsp.protocol.make_client_capabilities()
-    local ok, blink = pcall(require, 'blink.cmp')
+    local ok, blink = pcall(require, "blink.cmp")
     if ok and blink.get_lsp_capabilities then
       capabilities = vim.tbl_deep_extend("force", capabilities, blink.get_lsp_capabilities())
     end
+    vim.lsp.config("*", { capabilities = capabilities })
 
+    -- Base configs come from nvim-lspconfig's lsp/*.lua; these are merged on top
     local servers = {
       html = {},
       cssls = {},
@@ -100,18 +84,6 @@ return {
             },
           },
         },
-        commands = {
-          OrganizeImports = {
-            function()
-              local params = {
-                command = "_typescript.organizeImports",
-                arguments = { vim.api.nvim_buf_get_name(0) },
-              }
-              vim.lsp.buf.execute_command(params)
-            end,
-            description = "Organize Imports",
-          },
-        },
       },
       tailwindcss = {},
       emmet_ls = {
@@ -120,18 +92,31 @@ return {
       lua_ls = {
         settings = {
           Lua = {
-            diagnostics = { globals = { "vim" } },
             workspace = { checkThirdParty = false },
-            telemetry = { enable = false }
-          }
+            telemetry = { enable = false },
+          },
         },
-      }
+      },
+      rust_analyzer = {},
+      pyright = {},
+      clangd = {},
+      astro = {},
     }
 
-    local lspconfig = require("lspconfig")
+    -- Servers that require an external runtime - only enabled when it is available
+    local conditional_servers = {
+      elixirls = function() return vim.fn.executable("elixir") == 1 and vim.fn.executable("elixir-ls") == 1 end,
+    }
+
     for name, config in pairs(servers) do
-      config.capabilities = capabilities
-      lspconfig[name].setup(config)
+      vim.lsp.config(name, config)
+      vim.lsp.enable(name)
+    end
+
+    for name, condition in pairs(conditional_servers) do
+      if condition() then
+        vim.lsp.enable(name)
+      end
     end
   end,
 }
