@@ -3,7 +3,7 @@ return {
   event = "LspAttach",
   config = function()
     -- Keymap to auto-import missing symbol under cursor
-    vim.keymap.set("n", "<leader>ai", function()
+    vim.keymap.set("n", "<leader>ia", function()
       require("lspimport").import()
     end, { desc = "Auto-import symbol under cursor" })
   end,

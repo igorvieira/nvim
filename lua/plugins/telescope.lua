@@ -28,16 +28,16 @@ return {
       pickers = {
         find_files = {
           hidden = true,
-          find_command = { "rg", "--files", "--hidden", "--glob", "!**/node_modules/*" },
+          find_command = { "rg", "--files", "--hidden", "--glob", "!**/node_modules/*", "--glob", "!.git/*" },
         },
         live_grep = {
           additional_args = function()
-            return { "--hidden", "--glob", "!**/node_modules/*" }
+            return { "--hidden", "--glob", "!**/node_modules/*", "--glob", "!.git/*" }
           end,
         },
         grep_string = {
           additional_args = function()
-            return { "--hidden", "--glob", "!**/node_modules/*" }
+            return { "--hidden", "--glob", "!**/node_modules/*", "--glob", "!.git/*" }
           end,
         },
       },
@@ -49,7 +49,7 @@ return {
     keymap.set("n", "<leader>ff", "<cmd>Telescope find_files<cr>", { desc = "Find files" })
     keymap.set("n", "<leader>fr", "<cmd>Telescope oldfiles<cr>", { desc = "Find recent files" })
     keymap.set("n", "<leader>fs", "<cmd>Telescope live_grep<cr>", { desc = "Find string" })
-    keymap.set("n", "<leader>fsp", function()
+    keymap.set("n", "<leader>fp", function()
       local clipboard_text = vim.fn.getreg('+')
       require("telescope.builtin").live_grep({
         default_text = clipboard_text,
@@ -68,7 +68,7 @@ return {
         follow = true,
       })
     end, { desc = "Find all files (including ignored)" })
-    keymap.set("n", "<leader>fgit", function()
+    keymap.set("n", "<leader>fG", function()
       require("telescope.builtin").find_files({
         cwd = vim.fn.getcwd() .. "/.git",
         hidden = true,
@@ -82,7 +82,7 @@ return {
         no_ignore = true,
       })
     end, { desc = "Find files in node_modules" })
-    keymap.set("n", "<leader>fsgit", function()
+    keymap.set("n", "<leader>fS", function()
       require("telescope.builtin").live_grep({
         search_dirs = { ".git" },
         additional_args = function()
@@ -90,7 +90,7 @@ return {
         end,
       })
     end, { desc = "Search text in .git folder" })
-    keymap.set("n", "<leader>fsnm", function()
+    keymap.set("n", "<leader>fN", function()
       require("telescope.builtin").live_grep({
         search_dirs = { "node_modules" },
         additional_args = function()

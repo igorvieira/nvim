@@ -9,6 +9,7 @@ require("lazy").setup({
   spec = { { import = "plugins" }, { import = "plugins.lsp" } },
   defaults = { lazy = false },
   install = { colorscheme = { "dracula" } },
+  rocks = { enabled = false },
   checker = { enabled = false, notify = false },
   change_detection = { enabled = false, notify = false },
   lockfile = vim.fn.stdpath("config") .. "/lazy-lock.json",
