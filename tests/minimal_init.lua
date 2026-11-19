@@ -34,6 +34,7 @@ function M.setup()
   require("lazy").setup({
     spec = {
       { import = "plugins" },
+      { import = "plugins.lsp" },
     },
     install = {
       colorscheme = { "dracula" },

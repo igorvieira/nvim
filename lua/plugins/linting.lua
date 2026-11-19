@@ -4,41 +4,65 @@ return {
   config = function()
     local lint = require("lint")
 
-    local eslint_d_available = vim.fn.executable("eslint_d") == 1
-    local eslint_available = vim.fn.executable("eslint") == 1
-    
-    local linters_by_ft = {}
+    local js_fts = { "javascript", "typescript", "javascriptreact", "typescriptreact" }
 
-    if eslint_d_available then
-      local filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact" }
-      for _, ft in ipairs(filetypes) do
-        linters_by_ft[ft] = { "eslint_d" }
+    -- The project's own eslint (node_modules/.bin, searched upward from the file).
+    local function local_eslint(bufnr)
+      local name = vim.api.nvim_buf_get_name(bufnr or 0)
+      if name == "" then
+        return nil
       end
-    elseif eslint_available then
-      local filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact" }
-      for _, ft in ipairs(filetypes) do
-        linters_by_ft[ft] = { "eslint" }
-      end
-      vim.schedule(function()
-        vim.notify("Using eslint (consider installing eslint_d for better performance)", vim.log.levels.INFO)
-      end)
-    else
-      vim.schedule(function()
-        vim.notify("ESLint not found. Install via :Mason or npm install -g eslint", vim.log.levels.WARN)
-      end)
+      return vim.fs.find("node_modules/.bin/eslint", {
+        path = vim.fs.dirname(name),
+        upward = true,
+        type = "file",
+      })[1]
     end
 
-    lint.linters_by_ft = linters_by_ft
+    -- Order: project eslint, then eslint_d, then a global eslint.
+    local warned = false
+    local function pick_linter(bufnr)
+      if local_eslint(bufnr) then
+        return "eslint"
+      elseif vim.fn.executable("eslint_d") == 1 then
+        return "eslint_d"
+      elseif vim.fn.executable("eslint") == 1 then
+        return "eslint"
+      end
+      if not warned then
+        warned = true
+        vim.schedule(function()
+          vim.notify("ESLint not found (no project eslint, eslint_d or global eslint)", vim.log.levels.WARN)
+        end)
+      end
+      return nil
+    end
+
+    -- Run eslint from the project binary when there is one.
+    lint.linters.eslint = vim.tbl_extend("force", {}, lint.linters.eslint, {
+      cmd = function()
+        return local_eslint(0) or "eslint"
+      end,
+    })
+
+    lint.linters_by_ft = {}
 
     local function safe_try_lint()
-      local ft = vim.bo.filetype
-      if linters_by_ft[ft] then
-        local ok, err = pcall(lint.try_lint)
-        if not ok then
-          vim.notify("Lint error: " .. err, vim.log.levels.ERROR)
-          linters_by_ft[ft] = nil
-          lint.linters_by_ft = linters_by_ft
-        end
+      local bufnr = vim.api.nvim_get_current_buf()
+      if not vim.tbl_contains(js_fts, vim.bo[bufnr].filetype) then
+        return
+      end
+      local linter = pick_linter(bufnr)
+      if not linter then
+        return
+      end
+      local root = vim.fs.root(bufnr, {
+        "eslint.config.js", "eslint.config.mjs", "eslint.config.ts",
+        ".eslintrc.json", ".eslintrc.js", ".eslintrc.cjs", "package.json",
+      })
+      local ok, err = pcall(lint.try_lint, linter, { cwd = root })
+      if not ok then
+        vim.notify("Lint error: " .. tostring(err), vim.log.levels.ERROR)
       end
     end
 
@@ -48,6 +72,6 @@ return {
       callback = safe_try_lint,
     })
 
-    vim.keymap.set("n", "<leader>l", safe_try_lint, { desc = "Run linting" })
+    vim.keymap.set("n", "<leader>ll", safe_try_lint, { desc = "Run linting" })
   end,
 }

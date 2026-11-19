@@ -1,5 +1,6 @@
 return {
   "nvim-treesitter/nvim-treesitter",
+  branch = "master", -- "main" is an incompatible rewrite (no nvim-treesitter.configs)
   event = { "BufReadPre", "BufNewFile" },
   build = ":TSUpdate",
   dependencies = { "windwp/nvim-ts-autotag", "JoosepAlviste/nvim-ts-context-commentstring" },
