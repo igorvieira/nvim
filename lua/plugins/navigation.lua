@@ -5,7 +5,7 @@ return {
     event = { "BufReadPost", "BufNewFile" },
     config = function()
       require("illuminate").configure({
-        providers = { "lsp", "treesitter" },
+        providers = { "lsp", "regex" },
         delay = 200,
         filetypes_denylist = {
           "mason", "harpoon", "DressingInput", "NeogitCommitMessage", "qf", "dirvish",
